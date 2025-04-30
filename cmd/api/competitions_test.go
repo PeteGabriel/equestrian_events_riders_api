@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
-	riders "github.com/petegabriel/equestrian_events_riders_list"
+	riders "github.com/petegabriel/hippobase"
 	"net/http"
 	"net/http/httptest"
 	"reflect"

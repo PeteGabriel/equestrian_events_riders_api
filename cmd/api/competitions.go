@@ -6,7 +6,8 @@ import (
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
-	riders "github.com/petegabriel/equestrian_events_riders_list"
+	"github.com/google/uuid"
+	riders "github.com/petegabriel/hippobase"
 	"net/http"
 	"time"
 )
@@ -27,30 +28,31 @@ func (a *Application) ListCompetitions(c *gin.Context) {
 
 	for _, parsed := range parsedComps {
 		comp := &Competition{
-			ID:     parsed.MainTitle,
+			ID:     uuid.New().String(),
 			Name:   parsed.MainTitle,
 			Events: make([]*Event, 0),
 		}
 		for _, evt := range parsed.Events {
 			comp.Events = append(comp.Events, &Event{
-				ID:       evt.EventFullName,
-				Date:     "",
-				Name:     evt.EventFullName,
-				Nations:  evt.TotalNations,
-				Athletes: evt.TotalAthletes,
-				Horses:   evt.TotalHorses,
+				ID:          uuid.New().String(),
+				Date:        evt.CreatedAt,
+				Name:        evt.EventFullName,
+				Nations:     evt.TotalNations,
+				Athletes:    evt.TotalAthletes,
+				Horses:      evt.TotalHorses,
+				Competitors: evt.Competitors,
 			})
 		}
 		competitions = append(competitions, comp)
 	}
 
-	//TODO explore the possibility of doing this in a different goroutine
+	/*TODO explore the possibility of doing this in a different goroutine
 	if err := a.cacheEvents(competitions); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Internal server error",
 		})
 		return
-	}
+	}*/
 
 	c.Writer.Header().Set("Content-Type", jsonapi.MediaType)
 	c.Writer.WriteHeader(http.StatusOK)
@@ -64,24 +66,26 @@ func (a *Application) ListCompetitions(c *gin.Context) {
 
 }
 
-func (a *Application) cacheEvents(events []*Competition) error {
+func (a *Application) cacheEvents(cpts []*Competition) error {
 	if a.InMemory == nil {
 		return nil
 	}
-	for _, event := range events {
+	for _, cpt := range cpts {
 		err := a.InMemory.Update(func(txn *badger.Txn) error {
-			mEvt, err := json.Marshal(event)
+			mEvt, err := json.Marshal(cpt)
 			if err != nil {
 				return err
 			}
 
 			newEntry := badger.
-				NewEntry([]byte(event.Name), mEvt).
+				NewEntry([]byte(cpt.Name), mEvt).
 				WithTTL(time.Hour)
 			err = txn.SetEntry(newEntry)
 			return err
 		})
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

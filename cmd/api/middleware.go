@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
-	riders "github.com/petegabriel/equestrian_events_riders_list"
+	"github.com/google/jsonapi"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ func (a *Application) CheckCacheForEntryLists(c *gin.Context) {
 		return
 	}
 
-	var competitions []Competition
+	var competitions []*Competition
 
 	err := a.InMemory.View(func(txn *badger.Txn) error {
 		it := txn.NewIterator(badger.DefaultIteratorOptions)
@@ -26,21 +26,21 @@ func (a *Application) CheckCacheForEntryLists(c *gin.Context) {
 		for it.Rewind(); it.Valid(); it.Next() {
 			item := it.Item()
 
-			var event riders.EquestrianCompetition
+			var event *Competition
 			err := item.Value(func(val []byte) error {
 				err := json.Unmarshal(val, &event)
 				if err != nil {
 					return err
 				}
-				c := Competition{Name: event.MainTitle, ID: event.MainTitle}
+				c := &Competition{Name: event.Name, ID: event.ID}
 				c.Events = make([]*Event, 0)
 				for _, e := range event.Events {
 					c.Events = append(c.Events, &Event{
-						Date:     e.CreatedAt,
-						Name:     e.EventFullName,
-						Nations:  e.TotalNations,
-						Athletes: e.TotalAthletes,
-						Horses:   e.TotalHorses,
+						Date:     e.Date,
+						Name:     e.Name,
+						Nations:  e.Nations,
+						Athletes: e.Athletes,
+						Horses:   e.Horses,
 					})
 				}
 				competitions = append(competitions, c)
@@ -64,9 +64,15 @@ func (a *Application) CheckCacheForEntryLists(c *gin.Context) {
 
 	// if we found something in cache, return it
 	if len(competitions) > 0 {
-		c.JSON(http.StatusNotModified, gin.H{
-			"message": competitions,
-		})
+		c.Writer.Header().Set("Content-Type", jsonapi.MediaType)
+		c.Writer.WriteHeader(http.StatusOK)
+
+		if err = jsonapi.MarshalPayload(c.Writer, competitions); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "error retrieving data from cache",
+			})
+		}
+
 		c.Abort()
 		return
 	}
