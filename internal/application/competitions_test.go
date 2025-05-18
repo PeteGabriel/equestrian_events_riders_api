@@ -1,6 +1,7 @@
-package main
+package application
 
 import (
+	"equestrian-events-api/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
 	riders "github.com/petegabriel/hippobase"
@@ -52,7 +53,7 @@ func TestListCompetitions(t *testing.T) {
 		t.Errorf("expected status code %d, got %d", http.StatusOK, w.Code)
 	}
 
-	var competitions []Competition
+	var competitions []domain.Competition
 
 	data, err := jsonapi.UnmarshalManyPayload(w.Body, reflect.TypeOf(competitions))
 	if err != nil {
@@ -65,7 +66,7 @@ func TestListCompetitions(t *testing.T) {
 	}
 }
 
-func fixtures() []*Competition {
+func fixtures() []*domain.Competition {
 
 	competitors := make([]riders.RidersEntryRow, 0)
 	competitors = append(competitors, riders.RidersEntryRow{
@@ -75,11 +76,11 @@ func fixtures() []*Competition {
 		Pairs:       make(map[string][]string),
 	})
 
-	return []*Competition{
+	return []*domain.Competition{
 		{
 			Name: "Test Competition #1",
 			ID:   "Test Competition #1",
-			Events: []*Event{
+			Events: []*domain.Event{
 				{
 					Date: "",
 					Name: "Event #1",
@@ -101,7 +102,7 @@ func fixtures() []*Competition {
 		{
 			Name: "Test Competition #2",
 			ID:   "Test Competition #2",
-			Events: []*Event{
+			Events: []*domain.Event{
 				{
 					Date: "",
 					Name: "Event #1",

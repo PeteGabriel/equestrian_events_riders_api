@@ -1,4 +1,4 @@
-package main
+package domain
 
 import riders "github.com/petegabriel/hippobase"
 

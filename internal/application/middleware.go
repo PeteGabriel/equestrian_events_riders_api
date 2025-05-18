@@ -1,41 +1,42 @@
-package main
+package application
 
 import (
 	"encoding/json"
+	"equestrian-events-api/internal/domain"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
 	"net/http"
 )
 
-func (a *Application) CheckCacheForEntryLists(c *gin.Context) {
-	// check if data already exists
-	// if so return it
-	// if not, call the next handler
-	if a.InMemory == nil {
+// CheckCacheForEntryLists checks if the data is already in the cache.
+// If it is, it returns the data from the cache.
+// If not, it calls the next handler in the chain.
+func (app *Application) CheckCacheForEntryLists(c *gin.Context) {
+	if app.InMemory == nil {
 		c.Next()
 		return
 	}
 
-	var competitions []*Competition
+	var competitions []*domain.Competition
 
-	err := a.InMemory.View(func(txn *badger.Txn) error {
+	err := app.InMemory.View(func(txn *badger.Txn) error {
 		it := txn.NewIterator(badger.DefaultIteratorOptions)
 		defer it.Close()
 
 		for it.Rewind(); it.Valid(); it.Next() {
 			item := it.Item()
 
-			var event *Competition
+			var event *domain.Competition
 			err := item.Value(func(val []byte) error {
 				err := json.Unmarshal(val, &event)
 				if err != nil {
 					return err
 				}
-				c := &Competition{Name: event.Name, ID: event.ID}
-				c.Events = make([]*Event, 0)
+				c := &domain.Competition{Name: event.Name, ID: event.ID}
+				c.Events = make([]*domain.Event, 0)
 				for _, e := range event.Events {
-					c.Events = append(c.Events, &Event{
+					c.Events = append(c.Events, &domain.Event{
 						ID:          e.ID,
 						Date:        e.Date,
 						Name:        e.Name,
@@ -64,7 +65,6 @@ func (a *Application) CheckCacheForEntryLists(c *gin.Context) {
 		return
 	}
 
-	// if we found something in cache, return it
 	if len(competitions) > 0 {
 		c.Writer.Header().Set("Content-Type", jsonapi.MediaType)
 		c.Writer.WriteHeader(http.StatusOK)

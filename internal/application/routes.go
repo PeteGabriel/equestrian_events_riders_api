@@ -1,6 +1,7 @@
-package main
+package application
 
 import (
+	"equestrian-events-api/internal/domain"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
@@ -10,19 +11,12 @@ import (
 
 type HTTPHandlerWithErr[T any] func() (T, error)
 
-func (a *Application) routes() *gin.Engine {
-	router := gin.Default()
+type CompetitionList []*domain.Competition
 
-	router.Use(a.CheckCacheForEntryLists).
-		Handle("GET", "/competitions", a.HandleCompetitions(a.ListCompetitions))
-
-	return router
-}
-
-func (a *Application) HandleCompetitions(handler HTTPHandlerWithErr[[]*Competition]) gin.HandlerFunc {
+func (app *Application) HandleCompetitions(handler HTTPHandlerWithErr[CompetitionList]) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		var competitions []*Competition
+		var competitions []*domain.Competition
 		competitions, err := handler()
 
 		if err != nil {

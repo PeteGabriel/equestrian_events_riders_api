@@ -1,10 +1,11 @@
-package main
+package application
 
 import (
 	"encoding/json"
+	"equestrian-events-api/internal/domain"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/google/uuid"
-	riders "github.com/petegabriel/hippobase"
+	"github.com/petegabriel/hippobase"
 	"time"
 )
 
@@ -16,20 +17,20 @@ import (
 // @Produce json
 // @Success 200 {array} []EquineCompetition
 // @Router /competitions [get]
-func (a *Application) ListCompetitions() ([]*Competition, error) {
+func (app *Application) ListCompetitions() (CompetitionList, error) {
 
-	parsedComps := riders.Parse()
+	parsedComps := hippobase.Parse()
 
-	var competitions []*Competition
+	var competitions CompetitionList
 
 	for _, parsed := range parsedComps {
-		comp := &Competition{
+		comp := &domain.Competition{
 			ID:     uuid.New().String(),
 			Name:   parsed.MainTitle,
-			Events: make([]*Event, 0),
+			Events: make([]*domain.Event, 0),
 		}
 		for _, evt := range parsed.Events {
-			comp.Events = append(comp.Events, &Event{
+			comp.Events = append(comp.Events, &domain.Event{
 				ID:          uuid.New().String(),
 				Date:        evt.CreatedAt,
 				Name:        evt.EventFullName,
@@ -43,18 +44,18 @@ func (a *Application) ListCompetitions() ([]*Competition, error) {
 	}
 
 	//TODO explore the possibility of doing this in a different goroutine
-	if err := a.cacheEvents(competitions); err != nil {
+	if err := cacheEvents(competitions, app); err != nil {
 		return nil, InternalError(err.Error())
 	}
 
 	return competitions, nil
 }
 
-func (a *Application) cacheEvents(cpts []*Competition) error {
+func cacheEvents(list CompetitionList, a *Application) error {
 	if a.InMemory == nil {
 		return nil
 	}
-	for _, cpt := range cpts {
+	for _, cpt := range list {
 		err := a.InMemory.Update(func(txn *badger.Txn) error {
 			mEvt, err := json.Marshal(cpt)
 			if err != nil {
