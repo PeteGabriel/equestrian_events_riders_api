@@ -2,13 +2,9 @@ package main
 
 import (
 	"encoding/json"
-
 	"github.com/dgraph-io/badger/v4"
-	"github.com/gin-gonic/gin"
-	"github.com/google/jsonapi"
 	"github.com/google/uuid"
 	riders "github.com/petegabriel/hippobase"
-	"net/http"
 	"time"
 )
 
@@ -20,7 +16,7 @@ import (
 // @Produce json
 // @Success 200 {array} []EquineCompetition
 // @Router /competitions [get]
-func (a *Application) ListCompetitions(c *gin.Context) {
+func (a *Application) ListCompetitions() ([]*Competition, error) {
 
 	parsedComps := riders.Parse()
 
@@ -46,24 +42,12 @@ func (a *Application) ListCompetitions(c *gin.Context) {
 		competitions = append(competitions, comp)
 	}
 
-	/*TODO explore the possibility of doing this in a different goroutine
+	//TODO explore the possibility of doing this in a different goroutine
 	if err := a.cacheEvents(competitions); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Internal server error",
-		})
-		return
-	}*/
-
-	c.Writer.Header().Set("Content-Type", jsonapi.MediaType)
-	c.Writer.WriteHeader(http.StatusOK)
-
-	if err := jsonapi.MarshalPayload(c.Writer, competitions); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Internal server error",
-		})
-		return
+		return nil, InternalError(err.Error())
 	}
 
+	return competitions, nil
 }
 
 func (a *Application) cacheEvents(cpts []*Competition) error {
