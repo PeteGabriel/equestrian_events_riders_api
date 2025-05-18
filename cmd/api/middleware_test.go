@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
+	"github.com/google/jsonapi"
 	"net/http/httptest"
 	"testing"
 )
@@ -17,7 +18,7 @@ func mockCompetitions() []Competition {
 			{
 				ID:       "Entries CDIU25",
 				Date:     "2023-10-01",
-				Name:     "Event 1",
+				Name:     "CDIU25",
 				Nations:  5,
 				Athletes: 10,
 				Horses:   15,
@@ -25,7 +26,7 @@ func mockCompetitions() []Competition {
 			{
 				ID:       "Entries CSIO3*/YH",
 				Date:     "2023-10-02",
-				Name:     "Event 2",
+				Name:     "CSIO3*/YH",
 				Nations:  3,
 				Athletes: 8,
 				Horses:   12,
@@ -90,12 +91,12 @@ func TestCacheCheckMiddleware(t *testing.T) {
 		t.Errorf("expected status code 200, got %d", w.Code)
 	}
 
-	var competitions []Competition
-	if err := json.Unmarshal(w.Body.Bytes(), &competitions); err != nil {
+	competitions := new(jsonapi.ManyPayload)
+	if err := json.Unmarshal(w.Body.Bytes(), competitions); err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
-	if len(competitions) < 1 {
+	if competitions == nil {
 		t.Fatalf("expected competitions, got none")
 	}
 
