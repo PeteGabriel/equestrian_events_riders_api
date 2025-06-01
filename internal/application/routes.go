@@ -19,6 +19,8 @@ func (app *Application) HandleCompetitions(handler HTTPHandlerWithErr[Competitio
 		var competitions []*domain.Competition
 		competitions, err := handler()
 
+		c.Writer.Header().Set("Content-Type", jsonapi.MediaType)
+
 		if err != nil {
 			// Check if it's an HTTPError
 			var httpErr *HTTPError
@@ -27,23 +29,27 @@ func (app *Application) HandleCompetitions(handler HTTPHandlerWithErr[Competitio
 				//TODO observe and act accordingly
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"message": "Internal server error",
+					"code":    httpErr.Code,
+					"err":     err.Error(),
 				})
+				return
 			} else {
 				// Default to 500
 				slog.Error("internal server error", "err", err.Error())
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"message": "Internal server error",
+					"code":    httpErr.Code,
+					"err":     err.Error(),
 				})
+				return
 			}
 		}
-
-		c.Writer.Header().Set("Content-Type", jsonapi.MediaType)
-		c.Writer.WriteHeader(http.StatusOK)
 
 		if err := jsonapi.MarshalPayload(c.Writer, competitions); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Internal server error",
 			})
 		}
+
 	}
 }

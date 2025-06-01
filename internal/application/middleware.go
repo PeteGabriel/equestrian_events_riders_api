@@ -37,13 +37,13 @@ func (app *Application) CheckCacheForEntryLists(c *gin.Context) {
 				c.Events = make([]*domain.Event, 0)
 				for _, e := range event.Events {
 					c.Events = append(c.Events, &domain.Event{
-						ID:          e.ID,
-						Date:        e.Date,
-						Name:        e.Name,
-						Nations:     e.Nations,
-						Athletes:    e.Athletes,
-						Horses:      e.Horses,
-						Competitors: e.Competitors,
+						ID:       e.ID,
+						Date:     e.Date,
+						Name:     e.Name,
+						Nations:  e.Nations,
+						Athletes: e.Athletes,
+						Horses:   e.Horses,
+						//Competitors: e.Competitors,
 					})
 				}
 				competitions = append(competitions, c)

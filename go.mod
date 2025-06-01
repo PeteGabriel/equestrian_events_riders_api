@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/jsonapi v1.0.0
 	github.com/google/uuid v1.6.0
-	github.com/petegabriel/hippobase v0.0.3
+	github.com/petegabriel/hippobase v0.0.4
 )
 
 require (

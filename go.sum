@@ -111,8 +111,8 @@ github.com/modern-go/reflect2 v1.0.2 h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9G
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/pelletier/go-toml/v2 v2.2.2 h1:aYUidT7k73Pcl9nb2gScu7NSrKCSHIDE89b3+6Wq+LM=
 github.com/pelletier/go-toml/v2 v2.2.2/go.mod h1:1t835xjRzz80PqgE6HHgN2JOsmgYu/h4qDAS4n929Rs=
-github.com/petegabriel/hippobase v0.0.3 h1:UvLVeEms4B/+Txu9yxtllzkBSNp/w+Xg3CGkJE5Kw5s=
-github.com/petegabriel/hippobase v0.0.3/go.mod h1:fLIbY6g/oelm8H3SASC6896OCD5tFPRWlZ5sJVzwhZU=
+github.com/petegabriel/hippobase v0.0.4 h1:30Tk9CymM0QD8D1r/a5f6Xbnnr17YaLSebIwg4I/DgU=
+github.com/petegabriel/hippobase v0.0.4/go.mod h1:fLIbY6g/oelm8H3SASC6896OCD5tFPRWlZ5sJVzwhZU=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
