@@ -13,6 +13,7 @@ type HTTPHandlerWithErr[T any] func() (T, error)
 
 type CompetitionList []*domain.Competition
 
+// HandleCompetitions is a Gin handler that processes the request for competitions.
 func (app *Application) HandleCompetitions(handler HTTPHandlerWithErr[CompetitionList]) gin.HandlerFunc {
 	return func(c *gin.Context) {
 

@@ -17,7 +17,7 @@ import (
 // @Summary List competitions
 // @Description List competitions
 // @Produce json
-// @Success 200 {array} []EquineCompetition
+// @Success 200 {array} CompetitionList
 // @Router /competitions [get]
 func (app *Application) ListCompetitions() (CompetitionList, error) {
 
