@@ -2,6 +2,7 @@ package main
 
 import (
 	"equestrian-events-api/internal/application"
+
 	"github.com/dgraph-io/badger/v4"
 )
 

@@ -2,12 +2,13 @@ package application
 
 import (
 	"equestrian-events-api/internal/domain"
-	"github.com/gin-gonic/gin"
-	"github.com/google/jsonapi"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/jsonapi"
 )
 
 var app *Application

@@ -3,12 +3,13 @@ package application
 import (
 	"encoding/json"
 	"equestrian-events-api/internal/domain"
-	"github.com/dgraph-io/badger/v4"
-	"github.com/gin-gonic/gin"
-	"github.com/google/jsonapi"
 	"log/slog"
 	"net/http"
 	"strconv"
+
+	"github.com/dgraph-io/badger/v4"
+	"github.com/gin-gonic/gin"
+	"github.com/google/jsonapi"
 )
 
 // CheckCompetitionsInCache retrieves competitions from the cache if available,

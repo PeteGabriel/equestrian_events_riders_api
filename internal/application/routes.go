@@ -3,10 +3,11 @@ package application
 import (
 	"equestrian-events-api/internal/domain"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/google/jsonapi"
 	"log/slog"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/jsonapi"
 )
 
 type HTTPHandlerWithErr[T any] func(c *gin.Context) (T, error)

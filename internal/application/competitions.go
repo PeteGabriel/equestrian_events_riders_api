@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"equestrian-events-api/internal/domain"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/petegabriel/hippobase"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 // ListCompetitions is a handler that returns a list of competitions
@@ -99,12 +100,12 @@ func (app *Application) GetCompetitionByID(c *gin.Context) (Competition, error) 
 		for _, list := range entryList.Events {
 			// info about the event
 			event := &domain.Event{
-				ID:       uuid.New().String(),
-				Date:     list.CreatedAt,
-				Name:     list.EventFullName,
-				Nations:  list.TotalNations,
-				Athletes: list.TotalAthletes,
-				Horses:   list.TotalHorses,
+				ID:              uuid.New().String(),
+				Date:            list.CreatedAt,
+				Name:            list.EventFullName,
+				Nations:         list.TotalNations,
+				Athletes:        list.TotalAthletes,
+				Horses:          list.TotalHorses,
 				RidersAndHorses: make([]domain.Competitor, 0),
 			}
 			// info about each pair rider/horses

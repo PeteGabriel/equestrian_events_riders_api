@@ -2,8 +2,9 @@ package application
 
 import (
 	"errors"
-	"github.com/dgraph-io/badger/v4"
 	"net/http"
+
+	"github.com/dgraph-io/badger/v4"
 )
 
 type Application struct {

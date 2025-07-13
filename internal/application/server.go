@@ -1,8 +1,9 @@
 package application
 
 import (
-	"github.com/gin-gonic/gin"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (app *Application) Serve() error {
