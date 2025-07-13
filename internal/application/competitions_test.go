@@ -4,7 +4,6 @@ import (
 	"equestrian-events-api/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
-	riders "github.com/petegabriel/hippobase"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -68,18 +67,16 @@ func TestListCompetitions(t *testing.T) {
 
 func fixtures() []*domain.Competition {
 
-	competitors := make([]riders.RidersEntryRow, 0)
-	competitors = append(competitors, riders.RidersEntryRow{
-		Flag:        "No country",
-		CountryCode: "No code",
-		CountryName: "No name",
-		Pairs:       make(map[string][]string),
+	competitors := make([]domain.Competitor, 0)
+	competitors = append(competitors, domain.Competitor{
+		Rider:  "John Doe",
+		Horses: make([]string, 0),
 	})
 
 	return []*domain.Competition{
 		{
 			Name: "Test Competition #1",
-			ID:   "Test Competition #1",
+			ID:   1,
 			Events: []*domain.Event{
 				{
 					Date: "",
@@ -101,7 +98,7 @@ func fixtures() []*domain.Competition {
 		},
 		{
 			Name: "Test Competition #2",
-			ID:   "Test Competition #2",
+			ID:   2,
 			Events: []*domain.Event{
 				{
 					Date: "",

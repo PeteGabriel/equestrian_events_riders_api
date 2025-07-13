@@ -21,8 +21,11 @@ func (app *Application) Serve() error {
 func (app *Application) routes() *gin.Engine {
 	router := gin.Default()
 
-	router.Use(app.CheckCacheForEntryLists).
+	router.
+		GET("/", app.HandleCompetitions(app.ListCompetitions)).
 		GET("/competitions", app.HandleCompetitions(app.ListCompetitions))
+
+	router.GET("/competitions/:id", app.HandleCompetitionByID(app.GetCompetitionByID))
 
 	return router
 }

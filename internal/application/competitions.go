@@ -5,9 +5,11 @@ import (
 	"equestrian-events-api/internal/domain"
 	"fmt"
 	"github.com/dgraph-io/badger/v4"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/petegabriel/hippobase"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -16,10 +18,10 @@ import (
 // if the cache is empty
 // @Summary List competitions
 // @Description List competitions
-// @Produce json
+// @Produce JSON
 // @Success 200 {array} CompetitionList
 // @Router /competitions [get]
-func (app *Application) ListCompetitions() (CompetitionList, error) {
+func (app *Application) ListCompetitions(_ *gin.Context) (CompetitionList, error) {
 
 	events, err := hippobase.GetEvents()
 	if err != nil {
@@ -32,33 +34,11 @@ func (app *Application) ListCompetitions() (CompetitionList, error) {
 	for _, parsed := range events {
 
 		comp := &domain.Competition{
-			ID:     uuid.New().String(),
-			Name:   fmt.Sprintf("%s - %s", parsed.Location, parsed.Name),
-			URL:    parsed.EventURL,
-			Events: make([]*domain.Event, 0),
-		}
-
-		//TODO get entrylist for competition
-		if parsed.EntryListURL != "" {
-
-			eventWithEntryList, err := hippobase.GetEntryLists(parsed.EntryListURL)
-			if err != nil {
-				return nil, New(http.StatusServiceUnavailable,
-					fmt.Sprintf("Unable to fetch entry lists from Hippobase - %s", err.Error()))
-			}
-
-			for _, evt := range eventWithEntryList.Events {
-				event := &domain.Event{
-					ID:       uuid.New().String(),
-					Date:     evt.CreatedAt,
-					Name:     evt.EventFullName,
-					Nations:  evt.TotalNations,
-					Athletes: evt.TotalAthletes,
-					Horses:   evt.TotalHorses,
-				}
-
-				comp.Events = append(comp.Events, event)
-			}
+			ID:           parsed.Id,
+			Name:         fmt.Sprintf("%s - %s", parsed.Location, parsed.Name),
+			URL:          parsed.EventURL,
+			Events:       make([]*domain.Event, 0),
+			EntryListURL: parsed.EntryListURL,
 		}
 
 		competitions = append(competitions, comp)
@@ -73,6 +53,78 @@ func (app *Application) ListCompetitions() (CompetitionList, error) {
 	return competitions, nil
 }
 
+// GetCompetitionByID is a handler that returns competition details
+// from the in-memory cache or from the module based on the given ID.
+// @Summary List competitions
+// @Description List competitions
+// @Produce JSON
+// @Success 200 {object} Competition
+// @Router /competitions/{id} [get]
+func (app *Application) GetCompetitionByID(c *gin.Context) (Competition, error) {
+
+	var comp *domain.Competition
+	id := c.Param("id")
+
+	err := app.InMemory.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(id))
+		if err != nil {
+			return NotFound("Competition not found")
+		}
+
+		if item != nil {
+			err := item.Value(func(val []byte) error {
+				err := json.Unmarshal(val, &comp)
+				if err != nil {
+					return err
+				}
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	entryList, err := hippobase.GetEntryLists(comp.EntryListURL)
+	if err != nil {
+		return nil, InternalError(err.Error())
+	}
+
+	if entryList != nil {
+		for _, list := range entryList.Events {
+			// info about the event
+			event := &domain.Event{
+				ID:       uuid.New().String(),
+				Date:     list.CreatedAt,
+				Name:     list.EventFullName,
+				Nations:  list.TotalNations,
+				Athletes: list.TotalAthletes,
+				Horses:   list.TotalHorses,
+				RidersAndHorses: make([]domain.Competitor, 0),
+			}
+			// info about each pair rider/horses
+			// TODO maybe we can add the country info
+			for _, competitors := range list.Competitors {
+				for _, rider := range competitors.Pairs {
+					competitor := domain.Competitor{
+						Rider:  rider.Competitor,
+						Horses: rider.Horses,
+					}
+					event.RidersAndHorses = append(event.RidersAndHorses, competitor)
+				}
+			}
+			comp.Events = append(comp.Events, event)
+		}
+	}
+
+	return comp, err
+}
+
 func cacheEvents(list CompetitionList, a *Application) error {
 	if a.InMemory == nil {
 		return nil
@@ -84,9 +136,8 @@ func cacheEvents(list CompetitionList, a *Application) error {
 				return err
 			}
 
-			newEntry := badger.
-				NewEntry([]byte(cpt.Name), mEvt).
-				WithTTL(time.Hour)
+			idStr := strconv.Itoa(cpt.ID)
+			newEntry := badger.NewEntry([]byte(idStr), mEvt).WithTTL(time.Hour)
 			err = txn.SetEntry(newEntry)
 			return err
 		})

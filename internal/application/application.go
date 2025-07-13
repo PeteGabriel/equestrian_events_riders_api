@@ -22,6 +22,10 @@ func New(code int, message string) *HTTPError {
 	}
 }
 
+func NotFound(message string) *HTTPError {
+	return New(http.StatusNotFound, message)
+}
+
 func InternalError(message string) *HTTPError {
 	return New(http.StatusInternalServerError, message)
 }

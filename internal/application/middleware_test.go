@@ -3,17 +3,18 @@ package application
 import (
 	"encoding/json"
 	"equestrian-events-api/internal/domain"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
-	"net/http/httptest"
-	"testing"
 )
 
 func mockCompetitions() []domain.Competition {
 	var competitions []domain.Competition
 	competitions = append(competitions, domain.Competition{
-		ID:   "61. Mannheim Maimarkt Turnier",
+		ID:   1,
 		Name: "61. Mannheim Maimarkt Turnier",
 		Events: []*domain.Event{
 			{
@@ -79,7 +80,7 @@ func TestCacheCheckMiddleware(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// Call the middleware function
-	app.CheckCacheForEntryLists(c)
+	app.CheckCompetitionsInCache(c)
 	// Check if the response is as expected
 
 	// Check if the next handler was called
@@ -95,10 +96,6 @@ func TestCacheCheckMiddleware(t *testing.T) {
 	competitions := new(jsonapi.ManyPayload)
 	if err := json.Unmarshal(w.Body.Bytes(), competitions); err != nil {
 		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if competitions == nil {
-		t.Fatalf("expected competitions, got none")
 	}
 
 }
