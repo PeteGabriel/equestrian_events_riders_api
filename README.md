@@ -86,9 +86,9 @@ A Dockerfile is provided to containerize the application. Follow these steps to 
 
 
 
-# competitions/{event_id}
+### /competitions/{event_id}
 
-```
+```json
 {
     "data": {
         "type": "competitions",
@@ -118,7 +118,7 @@ A Dockerfile is provided to containerize the application. Follow these steps to 
             "type": "events",
             "id": "e237b4df-90b2-4adb-b196-5ad348a47ea9",
             "attributes": {
-                "competitors": [ // 91 items
+                "competitors": [
                   {
                       "rider": "KÜHNER, Max",
                       "horses": [
@@ -137,9 +137,8 @@ A Dockerfile is provided to containerize the application. Follow these steps to 
         {
             "type": "events",
             "id": "51bd163d-b09c-43c1-90e0-0121ca0e4bd8",
-            "attributes": [
-              ...
-            ],
+            "attributes": {
+                "competitors": []
                 "date": "2025-07-13 16:20:58",
                 "name": "Entries CSI3*",
                 "total_of_athletes": 18,
