@@ -2,6 +2,12 @@
 
 This API provides information about equestrian competitions and events.
 
+
+https://equestrian-events-riders-api.onrender.com
+
+(Machine will spin down with inactivity, which can delay requests by 50 seconds or more.)
+
+
 ### Running with Docker
 
 A Dockerfile is provided to containerize the application. Follow these steps to build and run the application using Docker:
